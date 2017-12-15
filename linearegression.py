@@ -2,19 +2,25 @@ from numpy import *
 import random
 
 
-def feature_scaling(train_x, mode=None):
-    train_x = train_x.copy()
+def feature_scaling(train_x, key=None, mode=None):
+    if 'array' not in str(type(key)):
+        work_arr = train_x.copy()
+    else:
+        if key.shape[1] == train_x.shape[1]:
+            work_arr = key.copy()
+        else:
+            raise Exception('key array has unequal column with train_x')
     if not mode or mode == 'mean_normalization':
         for n in range(train_x.shape[1]):
             col_max = train_x[:, n].max()
             col_avg = average(train_x[:, n])
             if col_max == col_avg:
                 continue
-            for m in range(train_x.shape[0]):
-                train_x[m, n] = (train_x[m, n] - col_avg) / col_max
+            for i in range(work_arr.shape[0]):
+                work_arr[i, n] = (work_arr[i, n] - col_avg) / col_max
     else:
         pass
-    return train_x
+    return work_arr
 
 
 def gradient_descent(train_x, train_y, alpha, is_fs=True, show_detail=False):
@@ -53,18 +59,17 @@ def gradient_descent(train_x, train_y, alpha, is_fs=True, show_detail=False):
     print('------- final result ------')
     if is_nan:
         print('!!!!!!! nan !!!!!!!')
-        print('!!!!!!! nan !!!!!!!')
     print('----- count -----')
     print(cnt)
+    print('----- linear regression result -----')
     if is_fs:
-        print('----- pre_x -----')
-        print(pre_x)
-    print('----- x -----')
-    print(train_x)
-    print('----- y -----')
-    print(train_y)
-    print('----- args -----')
-    print(cur_value)
+        print(feature_scaling(pre_x, transpose(cur_value)))
+    else:
+        print(cur_value)
+    if is_nan:
+        return False
+    else:
+        return True
 
 
 def test1():
@@ -77,7 +82,7 @@ def test1():
 
 def test2():
     m = 10000
-    alpha = -0.01
+    alpha = [1.0, 0.1, -1.0, -0.1, -0.01, 0.01]
     train_x = []
     train_y = []
     for n in range(m):
@@ -86,11 +91,19 @@ def test2():
         c = random.randint(-10, 10)
         train_x.append([1, a, b, c])
         noice = (random.random() - 0.5) * 50
-        train_y.append([(1000 + a + 2 * b + 3 * c) + noice])
+        train_y.append([(1000 + a + 6 * b + 8 * c) + noice])
     train_x = array(train_x, dtype=float64)
     train_y = array(train_y, dtype=float64)
-    gradient_descent(train_x, train_y, alpha)
-    # gradient_descent(train_x, train_y, alpha * 0.1, False)
+    print('----- x, y -----')
+    print(concatenate((train_x, train_y), axis=1))
+    for a in alpha:
+        print('===== alpha ' + str(a) + ' =====')
+        if gradient_descent(train_x, train_y, a):
+            print('===== alpha ' + str(a) + ' SUCCESS =====')
+            break
+        else:
+            print('===== alpha ' + str(a) + ' FAIL =====')
+            # gradient_descent(train_x, train_y, alpha * 0.1, False)
 
 
 if __name__ == '__main__':
