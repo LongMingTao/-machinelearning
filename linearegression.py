@@ -12,12 +12,12 @@ def feature_scaling(train_x, key=None, mode=None):
             raise Exception('key array has unequal column with train_x')
     if not mode or mode == 'mean_normalization':
         for n in range(train_x.shape[1]):
-            col_max = train_x[:, n].max()
+            col_s = train_x[:, n].max() - train_x[:, n].min()
             col_avg = average(train_x[:, n])
-            if col_max == col_avg:
+            if col_s == 0:
                 continue
             for i in range(work_arr.shape[0]):
-                work_arr[i, n] = (work_arr[i, n] - col_avg) / col_max
+                work_arr[i, n] = (work_arr[i, n] - col_avg) / col_s
     else:
         pass
     return work_arr
