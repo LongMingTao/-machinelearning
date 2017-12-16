@@ -97,6 +97,17 @@ def create_train_set(m, n, ground_truth, x_ranges, noise_ranges, dtype=None):
     return train_x, train_y
 
 
+def get_array_parties(test_y, result_y):
+    print('----- parties of result_y - test_y -----')
+    deta = (result_y - test_y)[:, 0]
+    length = len(deta)
+    deta = [deta[i] * deta[i] for i in range(length)]
+    parties = 0
+    for i in range(length):
+        parties += deta[i]
+    parties /= length
+    return parties
+
 def test1():
     alpha = -0.01
     train_x = array([[1, 1, 2], [1, 3, 4], [1, 5, 6]])
@@ -140,15 +151,7 @@ def test2():
     result_y = test_x.dot(cur_value)
     print('----- test x, result y -----')
     print(concatenate((pre_x, result_y), axis=1))
-    print('----- parties of result_y - test_y -----')
-    deta = (result_y - test_y)[:, 0]
-    length = len(deta)
-    deta = [deta[i] * deta[i] for i in range(length)]
-    parties = 0
-    for i in range(length):
-        parties += deta[i]
-    parties /= length
-    print(parties)
+    print(get_array_parties(test_y, result_y))
 
 
 if __name__ == '__main__':
