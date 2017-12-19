@@ -1,6 +1,12 @@
 from numpy import *
 
 
+def normal_equation(train_x, train_y):
+    arr_tmp = transpose(train_x).dot(train_x).tolist()
+    mat_tmp = mat(arr_tmp).I
+    return array(mat_tmp.tolist()).dot(transpose(train_x)).dot(train_y)
+
+
 def gradient_descent(train_x, train_y, alpha, show_level=1):
     if train_x.shape[0] != train_y.shape[0]:
         raise Exception('train set err with unequal rank')
@@ -8,7 +14,7 @@ def gradient_descent(train_x, train_y, alpha, show_level=1):
     cur_value = ones((train_x.shape[1], 1))
     cnt = 0
     is_nan = False
-    while (not (cur_value == pre_value).all()) and not is_nan and cnt <= 100000:
+    while (not (cur_value == pre_value).all()) and not is_nan:
         pre_value = cur_value.copy()
         for col in range(train_x.shape[1]):
             deta_h = transpose(train_x.dot(pre_value) - train_y).dot(train_x[:, col])

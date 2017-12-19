@@ -29,8 +29,8 @@ def create_train_set(m, n, ground_truth, x_ranges, noise_ranges, dtype=None):
     else:
         train_x = array(train_x, dtype=dtype)
         train_y = array(train_y, dtype=dtype)
-    print('----- x, y -----')
-    print(concatenate((train_x, train_y), axis=1))
+    # print('----- x, y -----')
+    # print(concatenate((train_x, train_y), axis=1))
     return train_x, train_y
 
 
@@ -59,14 +59,7 @@ def test1():
     return r1, r2
 
 
-def test2():
-    m = 10000
-    n = 4
-    gt = (1000, 1, 6, 8)
-    x_range = [1, (-100, 100), (-1000, 1000), (-10, 10)]
-    noise_range = [-50, 50]
-    alpha = [1.0, 0.1, -1.0, -0.1, -0.01, 0.01]
-    train_x, train_y = create_train_set(m, n, gt, x_range, noise_range)
+def test2(train_x, train_y, alpha):
     train_x, scaler, mode = tra.feature_scaling(train_x)
     print('----- scaler for ' + mode + ' -----')
     print(scaler)
@@ -76,22 +69,43 @@ def test2():
         print('===== alpha ' + str(a) + ' =====')
         cur_value, cnt = lr.gradient_descent(train_x, train_y, a, show_level=0)
         if cur_value is not None:
-            print('===== alpha ' + str(a) + ' SUCCESS =====')
-            break
+            print('===== alpha ' + str(a) + ' SUCCESS WITH CNT ' + str(cnt) + ' =====')
         else:
             print('===== alpha ' + str(a) + ' FAIL =====')
+            continue
+        print(cur_value)
+        test_x, test_y = create_train_set(2000, n, gt, x_range, 0)
+        pre_x = test_x.copy()
+        test_x = tra.feature_scaling(test_x, scaler)[0]
+        # print('----- test x,y -----')
+        # print(concatenate((pre_x, test_y), axis=1))
+        result_y = test_x.dot(cur_value)
+        # print('----- test x, result y -----')
+        # print(concatenate((pre_x, result_y), axis=1))
+        print(get_array_parties(test_y, result_y))
+
+
+def test3(train_x, train_y):
+    cur_value = lr.normal_equation(train_x, train_y)
+    print('------ normal equation -----')
     print(cur_value)
     test_x, test_y = create_train_set(2000, n, gt, x_range, 0)
     pre_x = test_x.copy()
-    test_x = tra.feature_scaling(test_x, scaler)[0]
-    print('----- test x,y -----')
-    print(concatenate((pre_x, test_y), axis=1))
+    # print('----- test x,y -----')
+    # print(concatenate((pre_x, test_y), axis=1))
     result_y = test_x.dot(cur_value)
-    print('----- test x, result y -----')
-    print(concatenate((pre_x, result_y), axis=1))
+    # print('----- test x, result y -----')
+    # print(concatenate((pre_x, result_y), axis=1))
     print(get_array_parties(test_y, result_y))
 
-
 if __name__ == '__main__':
+    m = 500
+    n = 4
+    gt = (8, 1, 6, 8)
+    x_range = [1, (-100, 100), (-1000, 1000), (-10, 10)]
+    noise_range = [-50, 50]
+    alpha = [1, -1, 0.1, -0.1, -0.01, 0.01, -0.001, 0.001]
+    train_x, train_y = create_train_set(m, n, gt, x_range, noise_range)
     # test1()
-    test2()
+    test2(train_x, train_y, alpha)
+    test3(train_x, train_y)
