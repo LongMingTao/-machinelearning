@@ -6,11 +6,14 @@ import numpy
 def get_array_parties(test_y, result_y):
     deta = (result_y - test_y)
     length = len(deta)
-    deta = [deta[i] * deta[i] for i in range(length)]
+    deta = [abs(deta[i])/test_y[i] for i in range(length)]
     parties = 0
     for i in range(length):
         parties += deta[i]
     parties /= length
+    numpy.set_printoptions(threshold='nan')
+    print(numpy.column_stack((test_y, result_y, deta)))
+    numpy.set_printoptions(threshold=1000)
     return parties
 
 
@@ -19,8 +22,8 @@ def randx(shape, rand_fun=None, has_constant=True):
         shape: (m, n) m is the number of lines, n is the number of cols
     """
     if not rand_fun:
-        # (-1000, 1000)
-        rand_fun = lambda x: (x-0.5) * 2000
+        # (-100, 100)
+        rand_fun = lambda x: (x-0.5) * 200
     n = []
     for i in range(shape[0]):
         line = []
@@ -31,13 +34,16 @@ def randx(shape, rand_fun=None, has_constant=True):
                 line.append(rand_fun(random.random()))
         n.append(line)
 
-    return numpy.array(n)
+    return numpy.array(n).reshape(shape)
 
 
-def noise(y, noise_fun=None):
-    lst_y = y.tolist()
-    if not noise_fun:
-        n = [(random.random() - 0.5) * 0.2 for i in range(len(lst_y))]
-    else:
-        n = [noise_fun(random.random()) for i in range(len(lst_y))]
-    return numpy.array([lst_y[i] - n[i] for i in range(len(lst_y))])
+def powerx(x, pow):
+    p = [x]
+    for i in range(2, pow + 1):
+        p.append(x ** i)
+    return numpy.column_stack(reversed(p))
+
+
+def noise(y, loc=0.0, scale=1.0, size=None):
+    n = numpy.random.normal(loc, scale, size)
+    return y + n
