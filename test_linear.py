@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     fun = fline.FunLinear(weight)
     y = fun.get(numpy.transpose(x))
-    y = tester.noise(y, size=y.shape[0])
+    y = tester.noise(y, scale=1000, size=y.shape[0])
     sx, scale, mode = dtra.feature_scaling(x)
 
     xita, cnt = alg.gradient_descent(fun, 0.00001, sx, y)
