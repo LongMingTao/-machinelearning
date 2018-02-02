@@ -35,18 +35,21 @@ def gradient_descent(fun, alpha, x, y, punish=0, precision=None, start_from=None
     :param start_from:  optional. Should be a 1*n Numpy array. Given where the algorithm start
     :return:    weigh set. Will be a Numpy array
     """
+    intercep_x = numpy.column_stack((x, numpy.array([1 for i in range(x.shape[0])])))
     if not precision:
         precision = alpha * 0.1
     if start_from is None:
-        start_from = numpy.zeros((x.shape[1]))
+        start_from = numpy.zeros((intercep_x.shape[1]))
+    else:
+        start_from = numpy.array(start_from.tolist() + [0])
     weigh_now = start_from
-    weigh_pre = numpy.ones((x.shape[1]))
+    weigh_pre = numpy.ones((intercep_x.shape[1]))
     over_flow = False
     cnt = 0
     while not (abs(weigh_now - weigh_pre) < precision).all() and not over_flow:
         cnt += 1
         weigh_pre = weigh_now
-        weigh_now = weigh_pre - alpha * get_cost_diff(fun, x, y, weigh_pre, punish)
+        weigh_now = weigh_pre - alpha * get_cost_diff(fun, intercep_x, y, weigh_pre, punish)
         if 'nan' in str(weigh_now) or 'inf' in str(weigh_now):
             return weigh_now, cnt
-    return weigh_now, cnt
+    return weigh_now[:-1], weigh_now[-1], cnt
