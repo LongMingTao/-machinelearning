@@ -53,3 +53,5 @@ def gradient_descent(fun, alpha, x, y, punish=0, precision=None, start_from=None
         if 'nan' in str(weigh_now) or 'inf' in str(weigh_now):
             return weigh_now, cnt
     return weigh_now[:-1], weigh_now[-1], cnt
+
+
